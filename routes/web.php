@@ -11,7 +11,11 @@
 |
 */
 
+$router->post('/auth/login', 'AuthController@postLogin');
 
-$router->get('/version', function () use ($router) {
-    return $router->app->version();
+$router->group(['middleware' => 'auth:api'], function($router)
+{
+    $router->get('/check', function() {
+        return response()->json(['status' => 'Success']);
+    });
 });

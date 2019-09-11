@@ -11,7 +11,7 @@
 |
 */
 
-$router->post('/auth/login', 'AuthController@postLogin');
+$router->post('/auth/login', 'AuthController@login');
 
 $router->group(['middleware' => 'auth:api'], function($router)
 {
@@ -19,3 +19,6 @@ $router->group(['middleware' => 'auth:api'], function($router)
         return response()->json(['status' => 'Success']);
     });
 });
+
+$router->get('social/{provider}', 'AuthController@redirectToProvider');
+$router->get('social/{provider}/callback', 'AuthController@handleProviderCallback');

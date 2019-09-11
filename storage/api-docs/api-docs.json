@@ -6,6 +6,54 @@
         "version": "1.0"
     },
     "paths": {
+        "/auth/social/{provider}": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Redirects the user to the Social authentication page",
+                "operationId": "redirectToProvider",
+                "parameters": [
+                    {
+                        "name": "provider",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The provider login page"
+                    }
+                }
+            }
+        },
+        "/auth/social/{provider}/callback": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Handle provider callback/Login or Register user",
+                "operationId": "handleProviderCallback",
+                "parameters": [
+                    {
+                        "name": "provider",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The user details"
+                    }
+                }
+            }
+        },
         "/version": {
             "get": {
                 "description": "Lumen version example route",

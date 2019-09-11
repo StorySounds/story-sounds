@@ -2,14 +2,53 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Story Sounds API",
-        "description": "REST Apis",
+        "description": "REST Apis for Story Sounds",
         "version": "1.0"
     },
     "paths": {
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logs a user in",
+                "operationId": "login",
+                "requestBody": {
+                    "description": "User credentials for authentication",
+                    "required": true,
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "User's email",
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "description": "User's password",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
         "/auth/social/{provider}": {
             "get": {
                 "tags": [
-                    "Auth"
+                    "Authentication"
                 ],
                 "summary": "Redirects the user to the Social authentication page",
                 "operationId": "redirectToProvider",
@@ -33,7 +72,7 @@
         "/auth/social/{provider}/callback": {
             "get": {
                 "tags": [
-                    "Auth"
+                    "Authentication"
                 ],
                 "summary": "Handle provider callback/Login or Register user",
                 "operationId": "handleProviderCallback",
@@ -53,16 +92,12 @@
                     }
                 }
             }
-        },
-        "/version": {
-            "get": {
-                "description": "Lumen version example route",
-                "responses": {
-                    "default": {
-                        "description": "Version page"
-                    }
-                }
-            }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Story Sounds authentication endpoints"
+        }
+    ]
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\JWTAuth;
+use Auth;
 
 class AuthController extends Controller
 {
@@ -17,6 +18,39 @@ class AuthController extends Controller
     {
         $this->jwt = $jwt;
     }
+
+    /**
+     * @OA\Post(
+     *     path="/auth/login",
+     *     summary="Logs a user in",
+     *     operationId="login",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         description="User credentials for authentication",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/x-www-form-urlencoded",
+     *             @OA\Schema(
+     *                 required={"email", "password"},
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="string",
+     *                     description="User's email"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     type="string",
+     *                     description="User's password"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success"
+     *     )
+     * )
+     */
 
     public function login(Request $request)
     {
@@ -45,13 +79,17 @@ class AuthController extends Controller
 
         }
 
-        return response()->json(compact('token'));
+        return response()->json([
+            'status' => "success",
+            'token' => $token,
+            'expires_in' => Auth::guard()->factory()->getTTL() * 60
+        ]);
     }
 
     /**
      * @OA\Get(
      *   path="/auth/social/{provider}",
-     *   tags={"Auth"},
+     *   tags={"Authentication"},
      *   summary="Redirects the user to the Social authentication page",
      *   operationId="redirectToProvider",
      *   @OA\Parameter(name="provider",
@@ -78,7 +116,7 @@ class AuthController extends Controller
     /**
      * @OA\Get(
      *   path="/auth/social/{provider}/callback",
-     *   tags={"Auth"},
+     *   tags={"Authentication"},
      *   summary="Handle provider callback/Login or Register user",
      *   operationId="handleProviderCallback",
      *   @OA\Parameter(name="provider",
@@ -111,7 +149,9 @@ class AuthController extends Controller
         $token = $JWTAuth->fromUser($user);
         
         return response()->json([
-            'token' => $token
+            'status' => "success",
+            'token' => $token,
+            'expires_in' => Auth::guard()->factory()->getTTL() * 60
         ]);
     }
 }

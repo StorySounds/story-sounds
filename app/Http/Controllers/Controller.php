@@ -10,17 +10,16 @@ class Controller extends BaseController
      * @OA\OpenApi(
      *   @OA\Info(
      *     title="Story Sounds API",
-     *     description="REST Apis",
+     *     description="REST Apis for Story Sounds",
      *     version="1.0"
      *   )
      * )
      */
 
     /**
-	 * @OA\Get(
-	 *     path="/version",
-	 *     description="Lumen version example route",
-	 *     @OA\Response(response="default", description="Version page")
-	 * )
-	 */
+     * @OA\Tag(
+     *   name="Authentication",
+     *   description="Story Sounds authentication endpoints"
+     * )
+     * */
 }

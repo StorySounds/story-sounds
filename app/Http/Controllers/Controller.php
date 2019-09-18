@@ -22,4 +22,23 @@ class Controller extends BaseController
      *   description="Story Sounds authentication endpoints"
      * )
      * */
+
+    /**
+     * @OA\Get(
+     *   path="/check",
+     *   tags={"Authentication"},
+     *   summary="Sample route for api authentication",
+     *   operationId="check",
+     *   @OA\Response(response="200",
+     *     description="Success"
+     *   ),
+     *   security={
+     *       {
+     *           "AuthToken": {}
+     *       }
+     *   }
+     * )
+     */
+
+
 }

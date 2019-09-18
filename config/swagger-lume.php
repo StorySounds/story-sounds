@@ -142,6 +142,13 @@ return [
             ],
         ],
         */
+
+        'AuthToken' => [ // Unique name of security
+            'type' => 'http', // The type of the security scheme. Valid values are "basic", "apiKey" or "oauth2".
+            'description' => 'API access token',
+            'scheme' => 'bearer', // The name of the header or query parameter to be used.
+            'bearerFormat' => 'JWT', // The location of the API key. Valid values are "query" or "header".
+        ],
     ],
 
     /*

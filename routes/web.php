@@ -12,13 +12,13 @@
 */
 
 $router->post('/auth/login', 'AuthController@login');
+$router->get('social/{provider}', 'AuthController@redirectToProvider');
+$router->get('social/{provider}/callback', 'AuthController@handleProviderCallback');
 
+//All the protected will go under this route group
 $router->group(['middleware' => 'auth:api'], function($router)
 {
     $router->get('/check', function() {
         return response()->json(['status' => 'Success']);
     });
 });
-
-$router->get('social/{provider}', 'AuthController@redirectToProvider');
-$router->get('social/{provider}/callback', 'AuthController@handleProviderCallback');

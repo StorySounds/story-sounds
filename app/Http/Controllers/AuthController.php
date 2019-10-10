@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\JWTAuth;
 use Auth;
+use App\EmailLogin;
+use Illuminate\Support\Facades\Mail;
+use App\User;
 
 class AuthController extends Controller
 {
@@ -148,6 +151,48 @@ class AuthController extends Controller
 
         $token = $JWTAuth->fromUser($user);
         
+        return response()->json([
+            'status' => "success",
+            'token' => $token,
+            'expires_in' => Auth::guard()->factory()->getTTL() * 60
+        ]);
+    }
+
+    public function passwordlessLogin(Request $request)
+    {
+        $this->validate($request, ['email' => 'required|email']);
+
+        $emailLogin = EmailLogin::createForEmail($request->input('email'));
+
+        $url = route('auth.email-authenticate', [
+            'token' => $emailLogin->token
+        ]);
+
+        Mail::send('emails.email-login', ['url' => $url], function ($m) use ($request) {
+            $m->from('noreply@storysound.com', 'StorySound');
+            $m->to($request->input('email'))->subject('StorySound login');
+        });
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Login email sent. Go check your email."
+        ]);
+    }
+
+    public function authenticateEmail($token, JWTAuth $JWTAuth)
+    {
+        $emailLogin = EmailLogin::validFromToken($token);
+
+        $user = User::query()->firstOrNew(['email' => $emailLogin->email]);
+
+        if (!$user->exists) {
+            $user = new User;
+            $user->email = $emailLogin->email;
+            $user->save();
+        }
+
+        $token = $JWTAuth->fromUser($emailLogin->user);
+
         return response()->json([
             'status' => "success",
             'token' => $token,

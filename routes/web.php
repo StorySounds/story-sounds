@@ -12,6 +12,20 @@
 */
 
 $router->post('/auth/login', 'AuthController@login');
+$router->post('/auth/email-authenticate', 'AuthController@passwordlessLogin');
+
+$router->get('/auth/email-authenticate/{token}', [
+    'as' => 'auth.email-authenticate',
+    'uses' => 'AuthController@authenticateEmail'
+]);
+
+$router->get('stories', 'StoryController@list');
+$router->get('stories/{id}', 'StoryController@read');
+$router->get('stories/{id}/sounds', 'StoryController@listSounds');
+
+$router->get('sounds/{id}', 'SoundController@read');
+$router->get('sounds/{id}/trigger', 'SoundController@getTrigger');
+
 $router->get('social/{provider}', 'AuthController@redirectToProvider');
 $router->get('social/{provider}/callback', 'AuthController@handleProviderCallback');
 
@@ -22,3 +36,4 @@ $router->group(['middleware' => 'auth:api'], function($router)
         return response()->json(['status' => 'Success']);
     });
 });
+

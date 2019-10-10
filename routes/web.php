@@ -11,6 +11,10 @@
 |
 */
 
+$router->get('/', function () use ($router) {
+    return "StorySounds Home Page - ".$router->app->version();
+});
+
 // $router->post('/auth/login', 'AuthController@login');
 
 $router->post('/auth/email-authenticate', 'AuthController@passwordlessLogin');
@@ -33,4 +37,3 @@ $router->group(['middleware' => 'auth:api'], function($router)
 	$router->get('sounds/{id}', 'SoundController@read');
 	$router->get('sounds/{id}/trigger', 'SoundController@getTrigger');
 });
-

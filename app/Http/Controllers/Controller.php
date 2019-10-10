@@ -23,22 +23,4 @@ class Controller extends BaseController
      * )
      * */
 
-    /**
-     * @OA\Get(
-     *   path="/check",
-     *   tags={"Authentication"},
-     *   summary="Sample route for api authentication",
-     *   operationId="check",
-     *   @OA\Response(response="200",
-     *     description="Success"
-     *   ),
-     *   security={
-     *       {
-     *           "AuthToken": {}
-     *       }
-     *   }
-     * )
-     */
-
-
 }

@@ -23,27 +23,89 @@ class AuthController extends Controller
     }
 
     /**
-     * @OA\Post(
+     * OA\Post(
      *     path="/auth/login",
      *     summary="Logs a user in",
      *     operationId="login",
      *     tags={"Authentication"},
-     *     @OA\RequestBody(
+     *     OA\RequestBody(
      *         description="User credentials for authentication",
      *         required=true,
-     *         @OA\MediaType(
+     *         OA\MediaType(
      *             mediaType="application/x-www-form-urlencoded",
-     *             @OA\Schema(
+     *             OA\Schema(
      *                 required={"email", "password"},
-     *                 @OA\Property(
+     *                 OA\Property(
      *                     property="email",
      *                     type="string",
      *                     description="User's email"
      *                 ),
-     *                 @OA\Property(
+     *                 OA\Property(
      *                     property="password",
      *                     type="string",
      *                     description="User's password"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     OA\Response(
+     *         response=200,
+     *         description="Success"
+     *     )
+     * )
+     */
+
+    // public function login(Request $request)
+    // {
+    //     $this->validate($request, [
+    //         'email'    => 'required|email|max:255',
+    //         'password' => 'required',
+    //     ]);
+
+    //     try {
+
+    //         if (! $token = $this->jwt->attempt($request->only('email', 'password'))) {
+    //             return response()->json(["status" => 'user_not_found'], 404);
+    //         }
+
+    //     } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+
+    //         return response()->json(["status" => 'token_expired'], 500);
+
+    //     } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+
+    //         return response()->json(["status" => 'token_invalid'], 500);
+
+    //     } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+
+    //         return response()->json(['token_absent' => $e->getMessage()], 500);
+
+    //     }
+
+    //     return response()->json([
+    //         'status' => "success",
+    //         'token' => $token,
+    //         'expires_in' => Auth::guard()->factory()->getTTL() * 60
+    //     ]);
+    // }
+
+    /**
+     * @OA\Post(
+     *     path="/auth/email-authenticate",
+     *     summary="Send the login magic link to user via email",
+     *     operationId="passwordlessLogin",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         description="User email for authentication",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/x-www-form-urlencoded",
+     *             @OA\Schema(
+     *                 required={"email"},
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="string",
+     *                     description="User's email"
      *                 )
      *             )
      *         )
@@ -53,34 +115,57 @@ class AuthController extends Controller
      *         description="Success"
      *     )
      * )
-     */
-
-    public function login(Request $request)
+     */    
+    public function passwordlessLogin(Request $request)
     {
-        $this->validate($request, [
-            'email'    => 'required|email|max:255',
-            'password' => 'required',
+        $this->validate($request, ['email' => 'required|email']);
+
+        $emailLogin = EmailLogin::createForEmail($request->input('email'));
+
+        $url = route('auth.email-authenticate', [
+            'token' => $emailLogin->token
         ]);
 
-        try {
+        Mail::send('emails.email-login', ['url' => $url], function ($m) use ($request) {
+            $m->from('noreply@storysoundsapp.com', 'StorySoundsApp');
+            $m->to($request->input('email'))->subject('StorySounds login');
+        });
 
-            if (! $token = $this->jwt->attempt($request->only('email', 'password'))) {
-                return response()->json(["status" => 'user_not_found'], 404);
-            }
+        return response()->json([
+            "status" => "success",
+            "message" => "Login email sent. Go check your email."
+        ]);
+    }
 
-        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+    /**
+     * @OA\Get(
+     *   path="/auth/email-authenticate/{token}",
+     *   tags={"Authentication"},
+     *   summary="Verify user token upon redirection to this route from email link",
+     *   operationId="authenticateEmail",
+     *   @OA\Parameter(name="token",
+     *     in="path",
+     *     required=true,
+     *     @OA\Schema(type="string")
+     *   ),
+     *   @OA\Response(response="200",
+     *     description="Successful operation! Login token generated"
+     *   )
+     * )
+     */
+    public function authenticateEmail($token, JWTAuth $JWTAuth)
+    {
+        $emailLogin = EmailLogin::validFromToken($token);
 
-            return response()->json(["status" => 'token_expired'], 500);
+        $user = User::query()->firstOrNew(['email' => $emailLogin->email]);
 
-        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-
-            return response()->json(["status" => 'token_invalid'], 500);
-
-        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
-
-            return response()->json(['token_absent' => $e->getMessage()], 500);
-
+        if (!$user->exists) {
+            $user = new User;
+            $user->email = $emailLogin->email;
+            $user->save();
         }
+
+        $token = $JWTAuth->fromUser($emailLogin->user);
 
         return response()->json([
             'status' => "success",
@@ -151,48 +236,6 @@ class AuthController extends Controller
 
         $token = $JWTAuth->fromUser($user);
         
-        return response()->json([
-            'status' => "success",
-            'token' => $token,
-            'expires_in' => Auth::guard()->factory()->getTTL() * 60
-        ]);
-    }
-
-    public function passwordlessLogin(Request $request)
-    {
-        $this->validate($request, ['email' => 'required|email']);
-
-        $emailLogin = EmailLogin::createForEmail($request->input('email'));
-
-        $url = route('auth.email-authenticate', [
-            'token' => $emailLogin->token
-        ]);
-
-        Mail::send('emails.email-login', ['url' => $url], function ($m) use ($request) {
-            $m->from('noreply@storysound.com', 'StorySound');
-            $m->to($request->input('email'))->subject('StorySound login');
-        });
-
-        return response()->json([
-            "status" => "success",
-            "message" => "Login email sent. Go check your email."
-        ]);
-    }
-
-    public function authenticateEmail($token, JWTAuth $JWTAuth)
-    {
-        $emailLogin = EmailLogin::validFromToken($token);
-
-        $user = User::query()->firstOrNew(['email' => $emailLogin->email]);
-
-        if (!$user->exists) {
-            $user = new User;
-            $user->email = $emailLogin->email;
-            $user->save();
-        }
-
-        $token = $JWTAuth->fromUser($emailLogin->user);
-
         return response()->json([
             'status' => "success",
             'token' => $token,

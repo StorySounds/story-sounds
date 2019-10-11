@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sound extends Model
 {
-    public function trigger()
+   	public function sound_triggers()
     {
-        return $this->hasOne('App\SoundTrigger');
+        return $this->hasMany('App\SoundTrigger');
     }
 }

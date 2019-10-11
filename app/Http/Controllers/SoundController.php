@@ -30,7 +30,7 @@ class SoundController extends Controller
      *   ),
      *   @OA\Response(
      *      response=401,
-     *      description="Authentication token missing. Unauthorized!"
+     *      description="Unauthorized! Authentication token missing or invalid."
      *   ),
      *   @OA\Response(
      *      response=404,
@@ -45,7 +45,7 @@ class SoundController extends Controller
      */
     public function read($id)
     {
-    	$sound = Sound::where('id', $id)->with('trigger')->first();
+    	$sound = Sound::where('id', $id)->with('sound_triggers')->first();
     	if($sound){
     		return response()->json([
 	            'status' => "success",
@@ -60,11 +60,11 @@ class SoundController extends Controller
 
     /**
      * @OA\Get(
-     *   path="/sounds/{id}/trigger",
+     *   path="/sounds/{id}/triggers",
      *   tags={"Sound & Trigger"},
-     *   summary="Get trigger related to a sound",
-     *   description="Return the trigger related to a sound",
-     *   operationId="read",
+     *   summary="Get sound triggers related to a sound",
+     *   description="Return sound triggers related to a sound",
+     *   operationId="getTriggers",
      *   @OA\Parameter(
      *       description="ID of sound",
      *       in="path",
@@ -81,7 +81,7 @@ class SoundController extends Controller
      *   ),
      *   @OA\Response(
      *      response=401,
-     *      description="Authentication token missing. Unauthorized!"
+     *      description="Unauthorized! Authentication token missing or invalid."
      *   ),
      *   @OA\Response(
      *      response=404,
@@ -94,13 +94,13 @@ class SoundController extends Controller
      *   }
      * )
      */
-    public function getTrigger($id)
+    public function getTriggers($id)
     {
     	$sound = Sound::where('id', $id)->first();
     	if($sound){
     		return response()->json([
 	            'status' => "success",
-	            'data' => $sound->trigger
+	            'data' => $sound->sound_triggers
 	        ]);
     	}
     	return response()->json([

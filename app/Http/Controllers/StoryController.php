@@ -20,7 +20,7 @@ class StoryController extends Controller
      *   ),
      *   @OA\Response(
      *      response=401,
-     *      description="Authentication token missing. Unauthorized!"
+     *      description="Unauthorized! Authentication token missing or invalid."
      *   ),
      *   security={
      *       {
@@ -31,7 +31,7 @@ class StoryController extends Controller
      */
     public function list()
     {
-    	$stories = Story::with("sounds")->get();
+    	$stories = Story::with("sound_triggers.sound")->get();
     	return response()->json([
             'status' => "success",
             'data' => $stories
@@ -61,7 +61,7 @@ class StoryController extends Controller
      *   ),
      *   @OA\Response(
      *      response=401,
-     *      description="Authentication token missing. Unauthorized!"
+     *      description="Unauthorized! Authentication token missing or invalid."
      *   ),
      *   @OA\Response(
      *      response=404,
@@ -76,7 +76,7 @@ class StoryController extends Controller
      */
     public function read($id)
     {
-    	$story = Story::where('id', $id)->with('sounds')->first();
+    	$story = Story::where('id', $id)->with('sound_triggers.sound')->first();
     	if($story){
     		return response()->json([
 	            'status' => "success",
@@ -91,11 +91,11 @@ class StoryController extends Controller
 
     /**
      * @OA\Get(
-     *   path="/stories/{id}/sounds",
+     *   path="/stories/{id}/sound_triggers",
      *   tags={"Story"},
-     *   summary="List all sounds belonging to a story",
-     *   description="Returns a list of all the sounds related to a story",
-     *   operationId="list",
+     *   summary="List all sound triggers belonging to a story",
+     *   description="Returns a list of all the sound triggers related to a story",
+     *   operationId="listSoundTriggers",
      *   @OA\Parameter(
      *       description="ID of story",
      *       in="path",
@@ -112,7 +112,7 @@ class StoryController extends Controller
      *   ),
      *   @OA\Response(
      *      response=401,
-     *      description="Authentication token missing. Unauthorized!"
+     *      description="Unauthorized! Authentication token missing or invalid."
      *   ),
      *   security={
      *       {
@@ -121,13 +121,13 @@ class StoryController extends Controller
      *   }
      * )
      */
-    public function listSounds($id)
+    public function listSoundTriggers($id)
     {
-    	$story = Story::where('id', $id)->first();
-    	$sounds = $story->sounds;
+    	$story = Story::where('id', $id)->with('sound_triggers.sound')->first();
+    	$sound_triggers = $story['sound_triggers'];
     	return response()->json([
             'status' => "success",
-            'data' => $sounds
+            'data' => $sound_triggers
         ]);
     }
 }

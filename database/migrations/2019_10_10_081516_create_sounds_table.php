@@ -18,11 +18,9 @@ class CreateSoundsTable extends Migration
             $table->string('name');
             $table->string('short_name');
             $table->string('type');
-            $table->unsignedBigInteger('story_id');
             $table->unsignedBigInteger('user_id')->nullable();
             $table->timestamps();
-
-            $table->foreign('story_id')->references('id')->on('stories');
+            
             $table->foreign('user_id')->references('id')->on('users');
         });
     }

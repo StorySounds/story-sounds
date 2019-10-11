@@ -25,10 +25,10 @@ class CreateSoundTriggersTable extends Migration
             $table->decimal('seconds_offset', 10, 2)->default(0.00);
             $table->string('trigger_phrase')->nullable();
             $table->unsignedBigInteger('play_after_sound_id')->nullable();
-            $table->unsignedBigInteger('sound_id')->unique();
+            $table->unsignedBigInteger('sound_id');
             $table->timestamps();
 
-            $table->foreign('play_after_sound_id')->references('id')->on('sounds');
+            $table->foreign('play_after_sound_id')->references('id')->on('sound_triggers');
             $table->foreign('sound_id')->references('id')->on('sounds');
         });
     }

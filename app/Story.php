@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Story extends Model
 {
-    public function sounds()
+    public function sound_triggers()
     {
-        return $this->hasMany('App\Sound');
+        return $this->belongsToMany('App\SoundTrigger');
     }
 }

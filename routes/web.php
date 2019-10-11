@@ -32,8 +32,8 @@ $router->group(['middleware' => 'auth:api'], function($router)
 {
     $router->get('stories', 'StoryController@list');
 	$router->get('stories/{id}', 'StoryController@read');
-	$router->get('stories/{id}/sounds', 'StoryController@listSounds');
+	$router->get('stories/{id}/sound_triggers', 'StoryController@listSoundTriggers');
 
 	$router->get('sounds/{id}', 'SoundController@read');
-	$router->get('sounds/{id}/trigger', 'SoundController@getTrigger');
+	$router->get('sounds/{id}/triggers', 'SoundController@getTriggers');
 });
